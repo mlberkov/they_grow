@@ -24,13 +24,29 @@
         /* Новый стиль заголовка с Flex */
         header {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 20px 30px;
+            padding: 13px 30px;
             background: #f8f9fa;
             border-bottom: 1px solid #dddddd;
             flex-shrink: 0;
             z-index: 40;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .header-subtitle {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
         }
 
         header h1 {
@@ -235,8 +251,9 @@
         .col-skill {
             position: sticky;
             left: 0;
-            min-width: 300px;
-            max-width: 400px;
+            width: var(--skill-col-width, 300px);
+            min-width: var(--skill-col-width, 300px);
+            max-width: var(--skill-col-width, 400px);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -253,7 +270,7 @@
 
         .col-done {
             position: sticky;
-            left: 300px;
+            left: var(--done-col-left, 300px);
             width: 50px;
             background: #ffffff;
             z-index: 10;
@@ -310,7 +327,7 @@
 
         .category-row .col-done {
             position: sticky;
-            left: 300px;
+            left: var(--done-col-left, 300px);
             background: #e9ecef;
             z-index: 15;
         }
@@ -328,21 +345,21 @@
         /* Нижняя панель управления */
         .control-footer {
             flex-shrink: 0;
-            padding: 13px 30px;
+            padding: 9px 30px;
             background: #ffffff;
             border-top: 1px solid #dddddd;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             gap: 15px;
         }
 
         /* Кнопка фильтра с градиентом */
         .filter-toggle-btn {
-            padding: 14px 32px;
+            padding: 7px 32px;
             border: none;
-            border-radius: 25px;
+            border-radius: 12px;
             font-size: 15px;
             font-weight: 600;
             color: #ffffff;
@@ -364,6 +381,11 @@
 
         .filter-toggle-btn.active {
             background: linear-gradient(to right, #ff758c 0%, #ff7eb3 100%);
+        }
+
+        /* Последняя кнопка с отступом */
+        .filter-toggle-btn:last-child {
+            margin-left: auto;
         }
 
         /* Модальное окно деталей навыка */
@@ -433,6 +455,10 @@
         }
 
         .hidden {
+            display: none !important;
+        }
+
+        .hidden-column {
             display: none !important;
         }
 
@@ -561,12 +587,17 @@
 <body>
     <!-- Новый заголовок с профилем -->
     <header>
-        <h1>Трекер развития навыков</h1>
-        <div class="profile-button" id="profileButton">
-            <span id="profileName">Малыш (выберите дату)</span>
-            <div class="profile-dropdown" id="profileDropdown">
-                <!-- Профили будут добавлены динамически -->
+        <div class="header-top">
+            <h1>Трекер развития навыков:</h1>
+            <div class="profile-button" id="profileButton">
+                <span id="profileName">Малыш (выберите дату)</span>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <!-- Профили будут добавлены динамически -->
+                </div>
             </div>
+        </div>
+        <div class="header-subtitle">
+            Отслеживание развития навыков ребёнка по месяцам согласно возрастным нормам
         </div>
     </header>
 
@@ -580,11 +611,11 @@
 
     <!-- Нижняя панель управления -->
     <footer class="control-footer">
-        <button class="filter-toggle-btn" id="ageFilterToggleBtn">
-            Оставить актуальное для возраста
-        </button>
         <button class="filter-toggle-btn" id="filterToggleBtn">
             Скрыть освоенные навыки
+        </button>
+        <button class="filter-toggle-btn" id="ageFilterToggleBtn">
+            Оставить актуальное для возраста
         </button>
         <button class="filter-toggle-btn" id="activitiesBtn">
             Развивающие активности месяца
@@ -1050,6 +1081,65 @@
             }
 
             hideEmptyCategories();
+            hideEmptyMonthColumns();
+        }
+
+        // Скрытие пустых колонок месяцев
+        function hideEmptyMonthColumns() {
+            const thead = document.getElementById('tableHead');
+            const tbody = document.getElementById('tableBody');
+
+            // Если фильтр не активен, показываем все колонки
+            if (!isFilterActive && !isAgeFilterActive) {
+                // Показываем все колонки месяцев в заголовке
+                thead.querySelectorAll('th.col-month').forEach(th => {
+                    th.classList.remove('hidden-column');
+                });
+
+                // Показываем все колонки месяцев в теле таблицы
+                tbody.querySelectorAll('td.col-month').forEach(td => {
+                    td.classList.remove('hidden-column');
+                });
+                return;
+            }
+
+            // Проверяем каждый месяц
+            for (let m = MIN_MONTH; m <= MAX_MONTH; m++) {
+                let hasVisibleActiveSkill = false;
+
+                // Проверяем все ячейки этого месяца в видимых строках навыков
+                const rows = tbody.querySelectorAll('tr:not(.category-row):not(.hidden)');
+                rows.forEach(row => {
+                    const cell = row.querySelector(`td.col-month[data-month="${m}"]`);
+                    // Проверяем, есть ли активный (не освоенный) навык в этой ячейке
+                    if (cell && cell.classList.contains('cell-active')) {
+                        hasVisibleActiveSkill = true;
+                    }
+                });
+
+                // Если в колонке нет видимых активных навыков, скрываем её
+                const shouldHideColumn = !hasVisibleActiveSkill;
+
+                // Скрываем/показываем заголовок колонки
+                const thMonth = thead.querySelector(`th.col-month[data-month="${m}"]`);
+                if (thMonth) {
+                    if (shouldHideColumn) {
+                        thMonth.classList.add('hidden-column');
+                    } else {
+                        thMonth.classList.remove('hidden-column');
+                    }
+                }
+
+                // Скрываем/показываем все ячейки этой колонки
+                const allCellsInMonth = tbody.querySelectorAll(`td.col-month[data-month="${m}"]`);
+                allCellsInMonth.forEach(cell => {
+                    if (shouldHideColumn) {
+                        cell.classList.add('hidden-column');
+                    } else {
+                        cell.classList.remove('hidden-column');
+                    }
+                });
+            }
         }
 
         function toggleFilter() {
@@ -1175,11 +1265,49 @@
             return relevantSkills;
         }
 
+        // Функция для расчета и установки фиксированной ширины колонки навыков
+        function setFixedSkillColumnWidth() {
+            // Создаем временный элемент для измерения текста
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.visibility = 'hidden';
+            tempDiv.style.whiteSpace = 'nowrap';
+            tempDiv.style.fontSize = window.getComputedStyle(document.body).fontSize;
+            tempDiv.style.fontFamily = window.getComputedStyle(document.body).fontFamily;
+            tempDiv.style.paddingLeft = '10px';
+            tempDiv.style.paddingRight = '8px';
+            document.body.appendChild(tempDiv);
+
+            let maxWidth = 0;
+
+            // Проходим по всем категориям и навыкам
+            CATEGORIES.forEach(category => {
+                tempDiv.textContent = category;
+                maxWidth = Math.max(maxWidth, tempDiv.offsetWidth);
+
+                const skills = DATA.milestones[category] || [];
+                skills.forEach(skill => {
+                    tempDiv.textContent = skill.skill_name;
+                    maxWidth = Math.max(maxWidth, tempDiv.offsetWidth);
+                });
+            });
+
+            document.body.removeChild(tempDiv);
+
+            // Добавляем небольшой запас
+            const skillColWidth = Math.ceil(maxWidth) + 2;
+
+            // Устанавливаем CSS переменные
+            document.documentElement.style.setProperty('--skill-col-width', skillColWidth + 'px');
+            document.documentElement.style.setProperty('--done-col-left', skillColWidth + 'px');
+        }
+
         // Инициализация приложения
         function init() {
             initProfiles();
             buildTableHeader();
             buildTableBody();
+            setFixedSkillColumnWidth();
 
             // Обработчики профиля
             document.getElementById('profileButton').addEventListener('click', toggleProfileDropdown);
