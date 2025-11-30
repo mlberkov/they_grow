@@ -335,6 +335,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 15px;
         }
 
         /* Кнопка фильтра с градиентом */
@@ -458,6 +459,9 @@
 
     <!-- Нижняя панель управления -->
     <footer class="control-footer">
+        <button class="filter-toggle-btn" id="ageFilterToggleBtn">
+            Оставить актуальное для возраста
+        </button>
         <button class="filter-toggle-btn" id="filterToggleBtn">
             Скрыть освоенные навыки
         </button>
@@ -856,20 +860,41 @@
 
         // Применение фильтра
         let isFilterActive = false;
+        let isAgeFilterActive = false;
 
         function applyFilter() {
             const tbody = document.getElementById('tableBody');
             const filterBtn = document.getElementById('filterToggleBtn');
+            const ageFilterBtn = document.getElementById('ageFilterToggleBtn');
+
+            // Получаем текущий возраст ребёнка
+            const profile = getCurrentProfile();
+            const currentLifeMonth = profile ? calculateCurrentLifeMonth(profile.birthdate) : null;
 
             tbody.querySelectorAll('tr:not(.category-row)').forEach(row => {
+                let shouldHide = false;
+
+                // Фильтр по освоенным навыкам
                 if (isFilterActive && row.classList.contains('skill-completed')) {
+                    shouldHide = true;
+                }
+
+                // Фильтр по возрасту
+                if (isAgeFilterActive && currentLifeMonth) {
+                    const startMonth = parseInt(row.dataset.startMonth);
+                    if (startMonth > currentLifeMonth) {
+                        shouldHide = true;
+                    }
+                }
+
+                if (shouldHide) {
                     row.classList.add('hidden');
                 } else {
                     row.classList.remove('hidden');
                 }
             });
 
-            // Обновляем кнопку
+            // Обновляем кнопку фильтра освоенных навыков
             if (isFilterActive) {
                 filterBtn.classList.add('active');
                 filterBtn.textContent = 'Показать все навыки';
@@ -878,11 +903,25 @@
                 filterBtn.textContent = 'Скрыть освоенные навыки';
             }
 
+            // Обновляем кнопку фильтра по возрасту
+            if (isAgeFilterActive) {
+                ageFilterBtn.classList.add('active');
+                ageFilterBtn.textContent = 'Не фильтровать по возрасту';
+            } else {
+                ageFilterBtn.classList.remove('active');
+                ageFilterBtn.textContent = 'Оставить актуальное для возраста';
+            }
+
             hideEmptyCategories();
         }
 
         function toggleFilter() {
             isFilterActive = !isFilterActive;
+            applyFilter();
+        }
+
+        function toggleAgeFilter() {
+            isAgeFilterActive = !isAgeFilterActive;
             applyFilter();
         }
 
@@ -984,8 +1023,11 @@
                 }
             });
 
-            // Обработчик кнопки фильтра
+            // Обработчик кнопки фильтра освоенных навыков
             document.getElementById('filterToggleBtn').addEventListener('click', toggleFilter);
+
+            // Обработчик кнопки фильтра по возрасту
+            document.getElementById('ageFilterToggleBtn').addEventListener('click', toggleAgeFilter);
 
             // Обработчики модального окна деталей навыка
             document.getElementById('skillModalClose').addEventListener('click', closeSkillModal);
