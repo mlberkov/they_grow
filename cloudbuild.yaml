@@ -1,0 +1,28 @@
+steps:
+  # Шаг 1: Собираем Docker образ
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'europe-west1-docker.pkg.dev/ordinal-avatar-479419-t7/child-tracker-repo/web-app:$COMMIT_SHA', '.']
+
+  # Шаг 2: Отправляем образ в Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-west1-docker.pkg.dev/ordinal-avatar-479419-t7/child-tracker-repo/web-app:$COMMIT_SHA']
+
+  # Шаг 3: Деплоим в Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'child-tracker-service'
+      - '--image'
+      - 'europe-west1-docker.pkg.dev/ordinal-avatar-479419-t7/child-tracker-repo/web-app:$COMMIT_SHA'
+      - '--region'
+      - 'europe-west1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+
+images:
+  - 'europe-west1-docker.pkg.dev/ordinal-avatar-479419-t7/child-tracker-repo/web-app:$COMMIT_SHA'
