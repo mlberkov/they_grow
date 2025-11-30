@@ -435,6 +435,127 @@
         .hidden {
             display: none !important;
         }
+
+        /* Модальное окно развивающих активностей */
+        .activities-modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activities-modal.show {
+            display: flex;
+        }
+
+        .activities-modal-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 85vh;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .activities-modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .activities-modal-header h2 {
+            font-size: 22px;
+            color: #333;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .activities-modal-icon {
+            font-size: 24px;
+        }
+
+        .activities-modal-close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .activities-modal-close:hover {
+            color: #000;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            overflow-y: auto;
+            padding: 10px 5px;
+        }
+
+        .activity-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            border-color: #dee2e6;
+        }
+
+        .activity-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            min-height: 40px;
+        }
+
+        .activity-card-content {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .activity-card-content ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .activity-card-content li {
+            margin-bottom: 6px;
+        }
+
+        .no-activities-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -465,6 +586,9 @@
         <button class="filter-toggle-btn" id="filterToggleBtn">
             Скрыть освоенные навыки
         </button>
+        <button class="filter-toggle-btn" id="activitiesBtn">
+            Развивающие активности месяца
+        </button>
     </footer>
 
     <!-- Модальное окно создания профиля -->
@@ -494,6 +618,19 @@
         <div class="skill-modal-content">
             <span class="skill-modal-close" id="skillModalClose">&times;</span>
             <div id="skillModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно развивающих активностей месяца -->
+    <div id="activitiesModal" class="activities-modal">
+        <div class="activities-modal-content">
+            <span class="activities-modal-close" id="activitiesModalClose">&times;</span>
+            <div class="activities-modal-header">
+                <h2><span class="activities-modal-icon">🎯</span>Развивающие активности месяца</h2>
+            </div>
+            <div class="activities-grid" id="activitiesGrid">
+                <!-- Карточки будут добавлены динамически -->
+            </div>
         </div>
     </div>
 
@@ -985,6 +1122,59 @@
             document.getElementById('skillModal').style.display = 'none';
         }
 
+        // Модальное окно развивающих активностей месяца
+        function openActivitiesModal() {
+            const modal = document.getElementById('activitiesModal');
+            const grid = document.getElementById('activitiesGrid');
+
+            // Получаем неосвоенные навыки, соответствующие возрасту
+            const relevantSkills = getRelevantUncompletedSkills();
+
+            if (relevantSkills.length === 0) {
+                grid.innerHTML = '<div class="no-activities-message">Нет неосвоенных навыков, соответствующих текущему возрасту ребёнка</div>';
+            } else {
+                // Создаём карточки
+                grid.innerHTML = relevantSkills.map(skill => `
+                    <div class="activity-card">
+                        <div class="activity-card-title">${skill.skill_name}</div>
+                        <div class="activity-card-content">${skill.details.parent_activities}</div>
+                    </div>
+                `).join('');
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closeActivitiesModal() {
+            document.getElementById('activitiesModal').classList.remove('show');
+        }
+
+        function getRelevantUncompletedSkills() {
+            const profile = getCurrentProfile();
+            if (!profile || !profile.birthdate) {
+                return [];
+            }
+
+            const currentLifeMonth = calculateCurrentLifeMonth(profile.birthdate);
+            const completedSkills = getCompletedSkills();
+            const relevantSkills = [];
+
+            // Проходим по всем категориям и навыкам
+            for (const category in milestonesData.milestones) {
+                milestonesData.milestones[category].forEach(skill => {
+                    const isCompleted = completedSkills.has(skill.id);
+                    const isRelevantAge = skill.period.start_month <= currentLifeMonth;
+
+                    // Навык должен быть неосвоенным и соответствовать возрасту
+                    if (!isCompleted && isRelevantAge) {
+                        relevantSkills.push(skill);
+                    }
+                });
+            }
+
+            return relevantSkills;
+        }
+
         // Инициализация приложения
         function init() {
             initProfiles();
@@ -1034,6 +1224,15 @@
             document.getElementById('skillModal').addEventListener('click', (e) => {
                 if (e.target.id === 'skillModal') {
                     closeSkillModal();
+                }
+            });
+
+            // Обработчики модального окна развивающих активностей
+            document.getElementById('activitiesBtn').addEventListener('click', openActivitiesModal);
+            document.getElementById('activitiesModalClose').addEventListener('click', closeActivitiesModal);
+            document.getElementById('activitiesModal').addEventListener('click', (e) => {
+                if (e.target.id === 'activitiesModal') {
+                    closeActivitiesModal();
                 }
             });
         }
