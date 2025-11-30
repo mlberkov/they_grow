@@ -1,7 +1,7 @@
 # Используем супер-легкий веб-сервер Nginx
 FROM nginx:alpine
 
-# Копируем файлы nginx.conf и index.html в папку, откуда Nginx раздает файлы
+# Копируем файл nginx.conf
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Копируем файл index.html в папку, откуда Nginx раздает файлы
