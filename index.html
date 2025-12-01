@@ -117,20 +117,20 @@
             justify-content: center;
             width: 44px;
             height: 44px;
-            background: #4F46E5;
+            background: var(--primary-purple);
             border-radius: 12px;
             border: none;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+            box-shadow: 0 2px 8px var(--shadow-purple);
             text-decoration: none;
             flex-shrink: 0;
         }
 
         .telegram-button:hover {
-            background: #4338CA;
+            background: #7C3AED;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 4px 12px var(--shadow-purple-hover);
         }
 
         .telegram-button:active {
@@ -138,7 +138,7 @@
         }
 
         .telegram-button:focus-visible {
-            outline: 3px solid rgba(79, 70, 229, 0.4);
+            outline: 3px solid rgba(139, 92, 246, 0.4);
             outline-offset: 2px;
         }
 
@@ -182,14 +182,14 @@
         }
 
         .profile-dropdown-item.create-new {
-            color: #4F46E5;
+            color: var(--primary-purple);
             font-weight: 500;
             border-top: 2px solid #dddddd;
         }
 
         .profile-dropdown-item.active {
-            background: #EEF2FF;
-            color: #4F46E5;
+            background: var(--accent-lavender);
+            color: var(--primary-purple);
         }
 
         /* Модальное окно для создания профиля */
@@ -223,16 +223,17 @@
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.2s ease;
         }
 
         .modal-close:hover {
-            color: #000;
+            color: var(--primary-purple);
         }
 
         .modal h2 {
             margin-bottom: 20px;
             font-size: 22px;
-            color: #333;
+            color: var(--primary-purple);
         }
 
         .modal-form-group {
@@ -257,7 +258,7 @@
 
         .modal-form-group input:focus {
             outline: none;
-            border-color: #4F46E5;
+            border-color: var(--primary-purple);
         }
 
         .modal-buttons {
@@ -278,21 +279,21 @@
         }
 
         .modal-button-primary {
-            background: #28a745;
+            background: var(--primary-purple);
             color: #ffffff;
         }
 
         .modal-button-primary:hover {
-            background: #218838;
+            background: #7C3AED;
         }
 
         .modal-button-secondary {
-            background: #6c757d;
+            background: #9CA3AF;
             color: #ffffff;
         }
 
         .modal-button-secondary:hover {
-            background: #5a6268;
+            background: #6B7280;
         }
 
         .table-wrapper {
@@ -363,7 +364,7 @@
         /* Подсветка текущего месяца */
         .current-month-col {
             position: relative;
-            border-left: 2px solid #4F46E5;
+            border-left: 2px solid var(--primary-purple);
         }
 
         .current-month-col::before {
@@ -373,7 +374,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(79, 70, 229, 0.08);
+            background: rgba(139, 92, 246, 0.08);
             pointer-events: none;
             z-index: 0;
         }
@@ -419,6 +420,44 @@
             cursor: pointer;
             width: 18px;
             height: 18px;
+            /* For desktop view - basic style, will be overridden for mobile */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-soft);
+            border-radius: 50%;
+            background: var(--bg-white);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-cell input:hover {
+            border-color: var(--primary-purple-light);
+            background: var(--accent-lavender);
+            transform: scale(1.05);
+        }
+
+        .checkbox-cell input:active {
+            transform: scale(0.95);
+        }
+
+        .checkbox-cell input:checked {
+            background: linear-gradient(135deg, var(--primary-purple-light) 0%, var(--primary-pink) 100%);
+            border-color: var(--primary-purple-light);
+            box-shadow: 0 2px 8px var(--shadow-purple);
+        }
+
+        .checkbox-cell input:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
         }
 
         /* Нижняя панель управления */
@@ -444,15 +483,15 @@
             color: #ffffff;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            background: #4F46E5;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            background: var(--primary-purple);
             user-select: none;
         }
 
         .filter-toggle-btn:hover {
-            background: #4338CA;
+            background: #7C3AED;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
         }
 
         .filter-toggle-btn:active {
@@ -460,7 +499,8 @@
         }
 
         .filter-toggle-btn.active {
-            background: #10B981;
+            background: var(--primary-purple-light);
+            box-shadow: 0 4px 15px rgba(167, 139, 250, 0.4);
         }
 
         /* Последняя кнопка с отступом */
@@ -500,16 +540,17 @@
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.2s ease;
         }
 
         .skill-modal-close:hover {
-            color: #000;
+            color: var(--primary-purple);
         }
 
         .skill-modal h2 {
             margin-bottom: 10px;
             font-size: 22px;
-            color: #333;
+            color: var(--primary-purple);
         }
 
         .skill-modal h3 {
@@ -578,12 +619,12 @@
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 2px solid var(--accent-lavender);
         }
 
         .activities-modal-header h2 {
             font-size: 22px;
-            color: #333;
+            color: var(--primary-purple);
             margin: 0;
             display: flex;
             align-items: center;
@@ -603,10 +644,11 @@
             font-weight: bold;
             cursor: pointer;
             line-height: 1;
+            transition: color 0.2s ease;
         }
 
         .activities-modal-close:hover {
-            color: #000;
+            color: var(--primary-purple);
         }
 
         .activities-grid {
@@ -628,8 +670,9 @@
 
         .activity-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-            border-color: #dee2e6;
+            box-shadow: 0 6px 16px var(--shadow-purple);
+            border-color: var(--primary-purple-light);
+            background: var(--accent-lavender);
         }
 
         .activity-card-title {
@@ -1065,7 +1108,7 @@
           footer .filter-toggle-btn.active {
             background: transparent;
             opacity: 1;
-            color: var(--success-green);
+            color: var(--primary-purple);
             font-weight: 600;
           }
 
@@ -1234,7 +1277,7 @@
         <div class="activities-modal-content">
             <span class="activities-modal-close" id="activitiesModalClose">&times;</span>
             <div class="activities-modal-header">
-                <h2><span class="activities-modal-icon">🎯</span>Развивающие активности месяца</h2>
+                <h2>Развивающие активности месяца</h2>
             </div>
             <div class="activities-grid" id="activitiesGrid">
                 <!-- Карточки будут добавлены динамически -->
