@@ -1158,6 +1158,15 @@
                 months += 12;
             }
 
+            // Если ещё не наступило число месяца рождения, вычитаем 1 месяц
+            if (today.getDate() < birth.getDate()) {
+                months--;
+                if (months < 0) {
+                    years--;
+                    months += 12;
+                }
+            }
+
             return { years, months };
         }
 
