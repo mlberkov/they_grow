@@ -666,6 +666,312 @@
                 gap: 12px;
             }
         }
+
+        /* ===== MOBILE RESPONSIVE STYLES ===== */
+        @media (max-width: 767px) {
+
+          /* ─────────────────────────────────────────────────────────────────────── */
+          /* 1. LAYOUT CONTAINER                                                      */
+          /* ─────────────────────────────────────────────────────────────────────── */
+
+          body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Предотвратить горизонтальный скролл */
+          }
+
+          .app-container {
+            width: 100vw;
+            max-width: 100vw;
+          }
+
+
+          /* ─────────────────────────────────────────────────────────────────────── */
+          /* 2. HEADER - компактный                                                  */
+          /* ─────────────────────────────────────────────────────────────────────── */
+
+          header {
+            padding: 8px 12px;
+            flex-direction: row;
+            align-items: center;
+            gap: 0;
+            justify-content: space-between;
+          }
+
+          /* Скрыть заголовок */
+          header h1 {
+            display: none;
+          }
+
+          /* Скрыть подзаголовок */
+          .header-subtitle {
+            display: none;
+          }
+
+          /* Верхний блок - горизонтальный */
+          .header-top {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+
+          .header-left {
+            position: static;
+            transform: none;
+            display: flex;
+            align-items: center;
+            order: 2;
+          }
+
+          .header-right {
+            position: static;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+          }
+
+          /* Кнопка профиля - переместить влево */
+          .profile-button {
+            margin: 0;
+            order: -1;
+          }
+
+          /* Выпадающий список профилей - выровнять по левому краю */
+          .profile-dropdown {
+            left: 0;
+            right: auto;
+          }
+
+          /* Telegram кнопка - в хедере справа с текстом */
+          .telegram-button {
+            position: static;
+            width: auto;
+            height: 44px;
+            margin: 0;
+            margin-left: auto;
+            box-shadow: none;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+          }
+
+          /* Скрыть иконку Telegram */
+          .telegram-button .telegram-icon {
+            display: none;
+          }
+
+          /* Показать текст "Чат сообщества" белыми буквами */
+          .telegram-button::after {
+            content: 'Чат сообщества';
+            color: #ffffff;
+          }
+
+
+          /* ─────────────────────────────────────────────────────────────────────── */
+          /* 3. TABLE - показать только Навык + Чекбокс                             */
+          /* ─────────────────────────────────────────────────────────────────────── */
+
+          .table-container,
+          #tableContainer {
+            overflow-x: hidden;
+            padding: 0;
+          }
+
+          #mainTable {
+            width: 100%;
+            table-layout: fixed;
+          }
+
+          /* СКРЫТЬ ВСЕ колонки с месяцами (1-72) */
+          #mainTable th:not(:first-child):not(:nth-child(2)),
+          #mainTable td:not(:first-child):not(:nth-child(2)) {
+            display: none !important;
+          }
+
+          /* Если у колонок есть класс .month-column */
+          .month-column {
+            display: none !important;
+          }
+
+          /* Колонка "Навык" - растянуть на доступное пространство */
+          #mainTable th:first-child,
+          #mainTable td:first-child {
+            width: calc(100vw - 80px);
+            min-width: auto;
+            padding: 14px 12px;
+            font-size: 15px;
+            line-height: 1.4;
+            white-space: normal; /* Перенос текста */
+            word-wrap: break-word;
+          }
+
+          /* Колонка "Чекбокс" - фиксированная ширина */
+          #mainTable th:nth-child(2),
+          #mainTable td:nth-child(2) {
+            width: 60px;
+            min-width: 60px;
+            text-align: center;
+            padding: 14px 8px;
+          }
+
+          /* Чекбокс - увеличить для touch */
+          #mainTable td:nth-child(2) input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            margin: 0;
+          }
+
+          /* Header таблицы */
+          #mainTable thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: white;
+            padding: 12px;
+            font-size: 14px;
+          }
+
+
+          /* ─────────────────────────────────────────────────────────────────────── */
+          /* 4. КАТЕГОРИИ - accordion (сворачиваемые)                               */
+          /* ─────────────────────────────────────────────────────────────────────── */
+
+          /* Строка категории - кликабельная */
+          #mainTable tr.category-row {
+            background: #F3F4F6;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+          }
+
+          #mainTable tr.category-row td {
+            padding: 16px 12px !important;
+          }
+
+          /* Иконка раскрытия (▼ = открыто, ▶ = закрыто) */
+          #mainTable tr.category-row td:first-child::before {
+            content: '▼ ';
+            font-size: 14px;
+            color: #6B7280;
+            margin-right: 8px;
+          }
+
+          #mainTable tr.category-row.collapsed td:first-child::before {
+            content: '▶ ';
+          }
+
+          /* Счётчик навыков справа (например "[3/10]") */
+          #mainTable tr.category-row td:first-child::after {
+            content: attr(data-skills-count);
+            margin-left: 8px;
+            font-size: 13px;
+            font-weight: normal;
+            color: #6B7280;
+          }
+
+          /* Активный эффект при тапе */
+          #mainTable tr.category-row:active {
+            background: #E5E7EB;
+          }
+
+
+          /* ─────────────────────────────────────────────────────────────────────── */
+          /* 5. FOOTER - компактные кнопки                                           */
+          /* ─────────────────────────────────────────────────────────────────────── */
+
+          footer {
+            padding: 6px 8px;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+          }
+
+          footer button {
+            padding: 8px 16px;
+            font-size: 14px;
+            flex: 1 1 calc(50% - 2px); /* 2 кнопки в ряд */
+            min-width: 140px;
+            min-height: auto;
+            white-space: nowrap;
+          }
+
+          /* Если кнопок 3, третья на всю ширину */
+          footer button:nth-child(3) {
+            flex: 1 1 100%;
+          }
+
+
+          /* ─────────────────────────────────────────────────────────────────────── */
+          /* 6. MODAL - fullscreen на мобильных                                      */
+          /* ─────────────────────────────────────────────────────────────────────── */
+
+          .modal-content {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            border-radius: 0;
+            margin: 0;
+            padding: 20px;
+            overflow-y: auto;
+          }
+
+          .modal-header {
+            padding: 16px 20px;
+          }
+
+          .modal-close {
+            width: 32px;
+            height: 32px;
+            font-size: 24px;
+          }
+
+          /* Карточки активностей в одну колонку */
+          .activities-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+          }
+
+          /* Одинаковые отступы в заголовках карточек */
+          .activity-card-title {
+            min-height: auto;
+            margin-bottom: 12px;
+          }
+
+
+          /* ─────────────────────────────────────────────────────────────────────── */
+          /* 7. TOUCH TARGETS - минимум 44x44px                                      */
+          /* ─────────────────────────────────────────────────────────────────────── */
+
+          button:not(footer button),
+          .button,
+          a.button,
+          input[type="checkbox"] {
+            min-height: 44px;
+            min-width: 44px;
+          }
+
+          /* Padding для кликабельных строк */
+          #mainTable tr td {
+            padding: 14px 12px;
+          }
+        }
+
+        /* ─────────────────────────────────────────────────────────────────────────── */
+        /* ДОПОЛНИТЕЛЬНО: Portrait/Landscape ориентация                              */
+        /* ─────────────────────────────────────────────────────────────────────────── */
+
+        @media (max-width: 767px) and (orientation: landscape) {
+          header {
+            padding: 6px 12px;
+          }
+        }
     </style>
 </head>
 <body>
@@ -1057,6 +1363,11 @@
 
             tbody.appendChild(fragment);
             applyFilter();
+
+            // Инициализация мобильного accordion после построения таблицы
+            if (window.innerWidth <= 767) {
+                setTimeout(() => initMobileAccordion(), 100);
+            }
         }
 
         // Создание строки навыка
@@ -1462,6 +1773,117 @@
                 }
             });
         }
+
+        // ═════════════════════════════════════════════════════════════════════════════
+        // MOBILE: Accordion для категорий
+        // ═════════════════════════════════════════════════════════════════════════════
+
+        function initMobileAccordion() {
+            // Проверка viewport
+            if (window.innerWidth > 767) return;
+
+            console.log('[Mobile] Инициализация accordion для категорий');
+
+            const table = document.getElementById('mainTable');
+            if (!table) {
+                console.warn('[Mobile] Таблица не найдена');
+                return;
+            }
+
+            // Найти все строки категорий
+            const categoryRows = table.querySelectorAll('tr.category-row');
+
+            if (categoryRows.length === 0) {
+                console.warn('[Mobile] Категории не найдены');
+                return;
+            }
+
+            categoryRows.forEach((categoryRow, index) => {
+                // Получить навыки этой категории
+                const categoryName = categoryRow.textContent.trim();
+                const skillRows = getSkillRowsForCategory(categoryRow);
+
+                // Посчитать освоенные/всего
+                const totalSkills = skillRows.length;
+                const completedSkills = skillRows.filter(row => {
+                    const checkbox = row.querySelector('input[type="checkbox"]');
+                    return checkbox && checkbox.checked;
+                }).length;
+
+                // Добавить счётчик в атрибут первой ячейки
+                const firstCell = categoryRow.querySelector('td');
+                if (firstCell) {
+                    firstCell.setAttribute('data-skills-count', `[${completedSkills}/${totalSkills}]`);
+                }
+
+                // Добавить обработчик клика
+                categoryRow.style.cursor = 'pointer';
+                categoryRow.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Toggle collapsed класс
+                    const isCollapsed = this.classList.toggle('collapsed');
+
+                    // Показать/скрыть навыки
+                    skillRows.forEach(skillRow => {
+                        skillRow.style.display = isCollapsed ? 'none' : '';
+                    });
+
+                    console.log(`[Mobile] Категория "${categoryName}" ${isCollapsed ? 'свёрнута' : 'развёрнута'}`);
+                });
+
+                // По умолчанию: первая категория открыта, остальные закрыты
+                if (index > 0) {
+                    categoryRow.classList.add('collapsed');
+                    skillRows.forEach(skillRow => {
+                        skillRow.style.display = 'none';
+                    });
+                }
+            });
+
+            console.log(`[Mobile] Accordion инициализирован для ${categoryRows.length} категорий`);
+        }
+
+        // Вспомогательная функция: получить строки навыков для категории
+        function getSkillRowsForCategory(categoryRow) {
+            const skillRows = [];
+            let nextRow = categoryRow.nextElementSibling;
+
+            // Собрать все строки до следующей категории
+            while (nextRow && !nextRow.classList.contains('category-row')) {
+                // Проверяем, что это строка навыка (имеет data-skill-id)
+                if (nextRow.dataset && nextRow.dataset.skillId) {
+                    skillRows.push(nextRow);
+                }
+                nextRow = nextRow.nextElementSibling;
+            }
+
+            return skillRows;
+        }
+
+        // Переинициализация при изменении размера окна
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // Убрать accordion на desktop
+                if (window.innerWidth > 767) {
+                    const table = document.getElementById('mainTable');
+                    if (table) {
+                        const allRows = table.querySelectorAll('tr');
+                        allRows.forEach(row => {
+                            row.classList.remove('collapsed');
+                            row.style.display = '';
+                            row.style.cursor = '';
+                        });
+                    }
+                } else {
+                    // Переинициализировать на mobile
+                    initMobileAccordion();
+                }
+            }, 250);
+        });
 
         // Запуск при загрузке страницы
         document.addEventListener('DOMContentLoaded', init);
