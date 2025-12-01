@@ -1393,7 +1393,13 @@
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.checked = isCompleted;
-            checkbox.onchange = () => toggleSkillCompletion(skill.id, checkbox.checked);
+            checkbox.onchange = (e) => {
+                e.stopPropagation(); // Предотвратить всплытие события к category-row
+                toggleSkillCompletion(skill.id, checkbox.checked);
+            };
+            checkbox.onclick = (e) => {
+                e.stopPropagation(); // Предотвратить всплытие клика к category-row
+            };
             tdDone.appendChild(checkbox);
             tr.appendChild(tdDone);
 
@@ -1432,6 +1438,10 @@
             }
 
             saveCompletedSkills(completedSkills);
+
+            // Сохранить состояние аккордеона перед перестроением таблицы
+            saveCategoryStates();
+
             buildTableBody();
         }
 
@@ -1778,6 +1788,25 @@
         // MOBILE: Accordion для категорий
         // ═════════════════════════════════════════════════════════════════════════════
 
+        // Глобальная переменная для хранения состояний категорий
+        let categoryCollapsedStates = {};
+
+        // Сохранить текущие состояния категорий (свёрнуты/развёрнуты)
+        function saveCategoryStates() {
+            if (window.innerWidth > 767) return; // Только для мобильной версии
+
+            const table = document.getElementById('mainTable');
+            if (!table) return;
+
+            const categoryRows = table.querySelectorAll('tr.category-row');
+            categoryRows.forEach((categoryRow) => {
+                const categoryName = categoryRow.textContent.trim().replace(/\s*\[.*?\]\s*$/, ''); // Убираем счётчик
+                categoryCollapsedStates[categoryName] = categoryRow.classList.contains('collapsed');
+            });
+
+            console.log('[Mobile] Состояния категорий сохранены:', categoryCollapsedStates);
+        }
+
         function initMobileAccordion() {
             // Проверка viewport
             if (window.innerWidth > 767) return;
@@ -1819,6 +1848,11 @@
                 // Добавить обработчик клика
                 categoryRow.style.cursor = 'pointer';
                 categoryRow.addEventListener('click', function(e) {
+                    // Игнорировать клики по чекбоксам и их родителям
+                    if (e.target.type === 'checkbox' || e.target.closest('.checkbox-cell')) {
+                        return;
+                    }
+
                     e.preventDefault();
                     e.stopPropagation();
 
@@ -1833,8 +1867,19 @@
                     console.log(`[Mobile] Категория "${categoryName}" ${isCollapsed ? 'свёрнута' : 'развёрнута'}`);
                 });
 
-                // По умолчанию: первая категория открыта, остальные закрыты
-                if (index > 0) {
+                // Определить начальное состояние категории
+                const categoryNameClean = categoryName.replace(/\s*\[.*?\]\s*$/, ''); // Убираем счётчик
+                let shouldBeCollapsed;
+
+                // Если есть сохранённое состояние, использовать его
+                if (categoryCollapsedStates.hasOwnProperty(categoryNameClean)) {
+                    shouldBeCollapsed = categoryCollapsedStates[categoryNameClean];
+                } else {
+                    // По умолчанию: первая категория открыта, остальные закрыты
+                    shouldBeCollapsed = index > 0;
+                }
+
+                if (shouldBeCollapsed) {
                     categoryRow.classList.add('collapsed');
                     skillRows.forEach(skillRow => {
                         skillRow.style.display = 'none';
