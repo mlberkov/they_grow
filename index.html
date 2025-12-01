@@ -36,10 +36,25 @@
 
         .header-top {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
             width: 100%;
+            position: relative;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-left: auto;
         }
 
         .header-subtitle {
@@ -72,6 +87,44 @@
 
         .profile-button:hover {
             background: #e9ecef;
+        }
+
+        /* Кнопка Telegram */
+        .telegram-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: #4F46E5;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .telegram-button:hover {
+            background: #4338CA;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .telegram-button:active {
+            transform: translateY(0);
+        }
+
+        .telegram-button:focus-visible {
+            outline: 3px solid rgba(79, 70, 229, 0.4);
+            outline-offset: 2px;
+        }
+
+        .telegram-icon {
+            width: 24px;
+            height: 24px;
+            color: #ffffff;
         }
 
         /* Выпадающее меню профилей */
@@ -108,14 +161,14 @@
         }
 
         .profile-dropdown-item.create-new {
-            color: #007bff;
+            color: #4F46E5;
             font-weight: 500;
             border-top: 2px solid #dddddd;
         }
 
         .profile-dropdown-item.active {
-            background: #e7f5ff;
-            color: #007bff;
+            background: #EEF2FF;
+            color: #4F46E5;
         }
 
         /* Модальное окно для создания профиля */
@@ -183,7 +236,7 @@
 
         .modal-form-group input:focus {
             outline: none;
-            border-color: #007bff;
+            border-color: #4F46E5;
         }
 
         .modal-buttons {
@@ -289,6 +342,7 @@
         /* Подсветка текущего месяца */
         .current-month-col {
             position: relative;
+            border-left: 2px solid #4F46E5;
         }
 
         .current-month-col::before {
@@ -298,17 +352,21 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 123, 255, 0.08);
+            background: rgba(79, 70, 229, 0.08);
             pointer-events: none;
             z-index: 0;
         }
 
         .cell-active {
-            background-color: #ffcccb;
+            background-color: #FEF3C7;
+        }
+
+        .cell-active.current-month-col {
+            background-color: #FBBF24;
         }
 
         .cell-completed {
-            background-color: #d4edda;
+            background-color: #D1FAE5;
         }
 
         .category-row {
@@ -366,11 +424,12 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            background: #4F46E5;
             user-select: none;
         }
 
         .filter-toggle-btn:hover {
+            background: #4338CA;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
@@ -380,7 +439,7 @@
         }
 
         .filter-toggle-btn.active {
-            background: linear-gradient(to right, #ff758c 0%, #ff7eb3 100%);
+            background: #10B981;
         }
 
         /* Последняя кнопка с отступом */
@@ -582,18 +641,57 @@
             color: #888;
             font-size: 16px;
         }
+
+        /* Адаптивность для мобильных */
+        @media (max-width: 768px) {
+            .telegram-button {
+                width: 40px;
+                height: 40px;
+            }
+
+            .telegram-icon {
+                width: 20px;
+                height: 20px;
+            }
+
+            header {
+                padding: 10px 15px;
+            }
+
+            header h1 {
+                font-size: 16px;
+            }
+
+            .header-right {
+                gap: 12px;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Новый заголовок с профилем -->
     <header>
         <div class="header-top">
-            <h1>Трекер развития навыков:</h1>
-            <div class="profile-button" id="profileButton">
-                <span id="profileName">Малыш (выберите дату)</span>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <!-- Профили будут добавлены динамически -->
+            <div class="header-left">
+                <h1>Трекер развития навыков</h1>
+            </div>
+            <div class="header-right">
+                <div class="profile-button" id="profileButton">
+                    <span id="profileName">Малыш (выберите дату)</span>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <!-- Профили будут добавлены динамически -->
+                    </div>
                 </div>
+                <a href="https://t.me/+-5DLjIhRIOsxNDIy"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="telegram-button"
+                   title="Чат сообщества - Общайтесь с пользователями и разработчиком, делитесь идеями"
+                   aria-label="Перейти в чат сообщества в Telegram">
+                    <svg class="telegram-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8L15.03 16.59C14.92 17.08 14.64 17.2 14.23 16.97L11.93 15.29L10.82 16.36C10.7 16.48 10.6 16.58 10.37 16.58L10.54 14.23L14.75 10.42C14.94 10.25 14.71 10.16 14.45 10.33L9.28 13.62L7.02 12.92C6.54 12.77 6.53 12.45 7.12 12.22L16.05 8.54C16.46 8.39 16.82 8.63 16.64 8.8Z" fill="currentColor"/>
+                    </svg>
+                </a>
             </div>
         </div>
         <div class="header-subtitle">
