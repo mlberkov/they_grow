@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5Q0JC691W"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-F5Q0JC691W');
+    </script>
+
     <title>Child Dev Tracker</title>
     <style>
         /* ===== CSS ПЕРЕМЕННЫЕ - МЯГКАЯ ПАСТЕЛЬНАЯ ПАЛИТРА ===== */
@@ -1209,7 +1219,8 @@
                    rel="noopener noreferrer"
                    class="telegram-button"
                    title="Чат сообщества - Общайтесь с пользователями и разработчиком, делитесь идеями"
-                   aria-label="Перейти в чат сообщества в Telegram">
+                   aria-label="Перейти в чат сообщества в Telegram"
+                   onclick="if (typeof gtag !== 'undefined') { gtag('event', 'telegram_click'); }">
                     <svg class="telegram-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8L15.03 16.59C14.92 17.08 14.64 17.2 14.23 16.97L11.93 15.29L10.82 16.36C10.7 16.48 10.6 16.58 10.37 16.58L10.54 14.23L14.75 10.42C14.94 10.25 14.71 10.16 14.45 10.33L9.28 13.62L7.02 12.92C6.54 12.77 6.53 12.45 7.12 12.22L16.05 8.54C16.46 8.39 16.82 8.63 16.64 8.8Z" fill="currentColor"/>
                     </svg>
@@ -1490,6 +1501,11 @@
                 closeProfileDropdown();
             } else {
                 openProfileDropdown();
+
+                // Google Analytics event
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'profile_click');
+                }
             }
         }
 
@@ -1658,8 +1674,24 @@
 
             if (isCompleted) {
                 completedSkills.add(skillId);
+
+                // Google Analytics event - skill completed
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'skill_complete', {
+                        'skill_id': skillId,
+                        'action': 'marked_complete'
+                    });
+                }
             } else {
                 completedSkills.delete(skillId);
+
+                // Google Analytics event - skill uncompleted
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'skill_complete', {
+                        'skill_id': skillId,
+                        'action': 'marked_incomplete'
+                    });
+                }
             }
 
             saveCompletedSkills(completedSkills);
@@ -1789,11 +1821,25 @@
         function toggleFilter() {
             isFilterActive = !isFilterActive;
             applyFilter();
+
+            // Google Analytics event
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'filter_completed_toggle', {
+                    'filter_state': isFilterActive ? 'enabled' : 'disabled'
+                });
+            }
         }
 
         function toggleAgeFilter() {
             isAgeFilterActive = !isAgeFilterActive;
             applyFilter();
+
+            // Google Analytics event
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'filter_age_toggle', {
+                    'filter_state': isAgeFilterActive ? 'enabled' : 'disabled'
+                });
+            }
         }
 
         // Скрытие пустых категорий
@@ -1850,6 +1896,15 @@
             `;
 
             modal.style.display = 'block';
+
+            // Google Analytics event
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'skill_view', {
+                    'skill_name': skill.skill_name,
+                    'skill_category': skill.category,
+                    'skill_period': `${skill.period.start_month}-${skill.period.end_month}`
+                });
+            }
         }
 
         function closeSkillModal() {
@@ -1858,6 +1913,11 @@
 
         // Модальное окно развивающих активностей месяца
         function openActivitiesModal() {
+            // Google Analytics event
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'activities_open');
+            }
+
             const modal = document.getElementById('activitiesModal');
             const grid = document.getElementById('activitiesGrid');
 
@@ -1982,6 +2042,13 @@
                 if (name && birthdate) {
                     createNewProfile(name, birthdate);
                     closeCreateProfileModal();
+
+                    // Google Analytics event
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'profile_create', {
+                            'profile_name': name
+                        });
+                    }
                 }
             });
 
@@ -2090,6 +2157,14 @@
                     });
 
                     console.log(`[Mobile] Категория "${categoryName}" ${isCollapsed ? 'свёрнута' : 'развёрнута'}`);
+
+                    // Google Analytics event
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'category_toggle', {
+                            'category_name': categoryName,
+                            'action': isCollapsed ? 'collapsed' : 'expanded'
+                        });
+                    }
                 });
 
                 // Определить начальное состояние категории
