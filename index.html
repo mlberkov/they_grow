@@ -596,6 +596,18 @@
             color: #666;
         }
 
+        .prerequisite-skill {
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .prerequisite-skill:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -1289,7 +1301,7 @@
     <!-- Модальное окно деталей навыка -->
     <div id="skillModal" class="skill-modal">
         <div class="skill-modal-content">
-            <span class="skill-modal-close" id="skillModalClose">&times;</span>
+            <span class="skill-modal-close" id="skillModalClose">↩</span>
             <div id="skillModalBody"></div>
         </div>
     </div>
@@ -1347,11 +1359,14 @@
             if (!prerequisites || prerequisites.length === 0) {
                 return '';
             }
-            const names = prerequisites.map(id => {
+            const skillSpans = prerequisites.map(id => {
                 const skill = DATA._skillsMap[id];
-                return skill ? skill.name : id;
+                if (skill) {
+                    return `<span class="prerequisite-skill" data-skill-id="${id}">${skill.name}</span>`;
+                }
+                return id;
             });
-            return `<h3>Требуемые навыки</h3><p>${names.join(', ')}</p>`;
+            return `<h3>Требуемые навыки</h3><p>${skillSpans.join(', ')}</p>`;
         }
 
         // Вспомогательная функция: преобразование массива активностей в маркированный список
@@ -1382,6 +1397,7 @@
         // Состояние приложения
         let profiles = [];
         let currentProfileId = null;
+        let skillModalHistory = []; // История навигации между модальными окнами навыков
 
         // Инициализация и миграция данных
         function initProfiles() {
@@ -2012,12 +2028,23 @@
         }
 
         // Модальное окно деталей навыка
-        function openSkillModal(skill) {
+        function openSkillModal(skill, addToHistory = true) {
             const modal = document.getElementById('skillModal');
             const modalBody = document.getElementById('skillModalBody');
 
+            // Если модальное окно уже открыто и нужно сохранить в историю
+            if (addToHistory && modal.style.display === 'block') {
+                const currentSkillId = modalBody.querySelector('h2')?.getAttribute('data-skill-id');
+                if (currentSkillId) {
+                    const currentSkill = DATA._skillsMap[currentSkillId];
+                    if (currentSkill) {
+                        skillModalHistory.push(currentSkill);
+                    }
+                }
+            }
+
             modalBody.innerHTML = `
-                <h2>${skill.name}</h2>
+                <h2 data-skill-id="${skill.id}">${skill.name}</h2>
                 <p class="period">Период: ${skill.age_start_months}–${skill.age_end_months} месяцев</p>
 
                 <h3>Диагностические признаки</h3>
@@ -2052,6 +2079,18 @@
 
         function closeSkillModal() {
             document.getElementById('skillModal').style.display = 'none';
+            skillModalHistory = []; // Очистить историю при закрытии
+        }
+
+        function navigateBackOrCloseSkillModal() {
+            if (skillModalHistory.length > 0) {
+                // Есть история — вернуться к предыдущему навыку
+                const previousSkill = skillModalHistory.pop();
+                openSkillModal(previousSkill, false);
+            } else {
+                // История пуста — закрыть модальное окно
+                closeSkillModal();
+            }
         }
 
         // Модальное окно развивающих активностей месяца
@@ -2202,10 +2241,21 @@
             document.getElementById('ageFilterToggleBtn').addEventListener('click', toggleAgeFilter);
 
             // Обработчики модального окна деталей навыка
-            document.getElementById('skillModalClose').addEventListener('click', closeSkillModal);
+            document.getElementById('skillModalClose').addEventListener('click', navigateBackOrCloseSkillModal);
             document.getElementById('skillModal').addEventListener('click', (e) => {
                 if (e.target.id === 'skillModal') {
                     closeSkillModal();
+                }
+            });
+
+            // Обработчик кликов на пререквизитные навыки в модальном окне
+            document.getElementById('skillModal').addEventListener('click', (e) => {
+                if (e.target.classList.contains('prerequisite-skill')) {
+                    const skillId = e.target.getAttribute('data-skill-id');
+                    const skill = DATA._skillsMap[skillId];
+                    if (skill) {
+                        openSkillModal(skill);
+                    }
                 }
             });
 
