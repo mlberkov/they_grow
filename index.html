@@ -1393,6 +1393,9 @@
         const STORAGE_KEY_PROFILES = 'childDevTracker_profiles';
         const STORAGE_KEY_CURRENT = 'childDevTracker_currentProfile';
         const STORAGE_KEY_LEGACY = 'childDevTracker_completed'; // Для миграции
+        const STORAGE_KEY_ACCORDION = 'milestones_accordion_states';
+        const STORAGE_KEY_FILTER_COMPLETED = 'milestones_filter_completed';
+        const STORAGE_KEY_FILTER_AGE = 'milestones_filter_age';
 
         // Состояние приложения
         let profiles = [];
@@ -1980,6 +1983,10 @@
 
         function toggleFilter() {
             isFilterActive = !isFilterActive;
+
+            // Сохранить состояние фильтра в localStorage
+            localStorage.setItem(STORAGE_KEY_FILTER_COMPLETED, JSON.stringify(isFilterActive));
+
             applyFilter();
 
             // Google Analytics event
@@ -1992,6 +1999,10 @@
 
         function toggleAgeFilter() {
             isAgeFilterActive = !isAgeFilterActive;
+
+            // Сохранить состояние фильтра в localStorage
+            localStorage.setItem(STORAGE_KEY_FILTER_AGE, JSON.stringify(isAgeFilterActive));
+
             applyFilter();
 
             // Google Analytics event
@@ -2191,6 +2202,29 @@
         // Инициализация приложения
         function init() {
             initProfiles();
+
+            // Загрузить сохранённые состояния UI
+            loadCategoryStates();
+
+            // Загрузить состояния фильтров
+            const savedFilterCompleted = localStorage.getItem(STORAGE_KEY_FILTER_COMPLETED);
+            if (savedFilterCompleted !== null) {
+                try {
+                    isFilterActive = JSON.parse(savedFilterCompleted);
+                } catch (e) {
+                    console.warn('[Mobile] Ошибка при загрузке состояния фильтра освоенных навыков:', e);
+                }
+            }
+
+            const savedFilterAge = localStorage.getItem(STORAGE_KEY_FILTER_AGE);
+            if (savedFilterAge !== null) {
+                try {
+                    isAgeFilterActive = JSON.parse(savedFilterAge);
+                } catch (e) {
+                    console.warn('[Mobile] Ошибка при загрузке состояния фильтра по возрасту:', e);
+                }
+            }
+
             buildTableHeader();
             buildTableBody();
             setFixedSkillColumnWidth();
@@ -2289,7 +2323,24 @@
                 categoryCollapsedStates[categoryName] = categoryRow.classList.contains('collapsed');
             });
 
+            // Сохранить в localStorage
+            localStorage.setItem(STORAGE_KEY_ACCORDION, JSON.stringify(categoryCollapsedStates));
+
             console.log('[Mobile] Состояния категорий сохранены:', categoryCollapsedStates);
+        }
+
+        // Загрузить состояния категорий из localStorage
+        function loadCategoryStates() {
+            const savedStates = localStorage.getItem(STORAGE_KEY_ACCORDION);
+            if (savedStates) {
+                try {
+                    categoryCollapsedStates = JSON.parse(savedStates);
+                    console.log('[Mobile] Состояния категорий загружены:', categoryCollapsedStates);
+                } catch (e) {
+                    console.warn('[Mobile] Ошибка при загрузке состояний категорий:', e);
+                    categoryCollapsedStates = {};
+                }
+            }
         }
 
         function initMobileAccordion() {
@@ -2350,6 +2401,9 @@
                     });
 
                     console.log(`[Mobile] Категория "${categoryName}" ${isCollapsed ? 'свёрнута' : 'развёрнута'}`);
+
+                    // Сохранить состояние аккордеона
+                    saveCategoryStates();
 
                     // Google Analytics event
                     if (typeof gtag !== 'undefined') {
