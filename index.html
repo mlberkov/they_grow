@@ -9,8 +9,38 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+
+      // === Debug mode: ?dbg=1 включает, ?dbg=0 выключает, иначе читаем localStorage ===
+      const GA_DEBUG = (() => {
+        const p = new URLSearchParams(window.location.search).get('dbg');
+        if (p === '1') { localStorage.setItem('ga_debug', '1'); return true; }
+        if (p === '0') { localStorage.removeItem('ga_debug'); return false; }
+        return localStorage.getItem('ga_debug') === '1';
+      })();
+
+      // === App constants (соответствуют custom definitions в GA4) ===
+      const APP_VERSION = '1.0.0';
+      const UI_LOCALE = document.documentElement.lang || 'ru';
+      const GA_MEASUREMENT_ID = 'G-F5Q0JC691W';
+
+      // === Init GA ===
       gtag('js', new Date());
-      gtag('config', 'G-F5Q0JC691W');
+      gtag('config', GA_MEASUREMENT_ID, ...(GA_DEBUG ? [{ debug_mode: true }] : []));
+
+      // === Event helper: безопасная отправка с обогащением ===
+      function trackEvent(name, params) {
+        if (typeof gtag !== 'function') return;
+        try {
+          const p = Object.assign({ ui_locale: UI_LOCALE, app_version: APP_VERSION }, params);
+          if (GA_DEBUG) p.debug_mode = true;
+          gtag('event', name, p);
+        } catch (e) { /* GA blocked — ignore */ }
+      }
+
+      // === Debug ping: только в debug-режиме для проверки DebugView ===
+      if (GA_DEBUG) {
+        trackEvent('app_debug_ping', { timestamp: Date.now() });
+      }
     </script>
 
     <title>Child Dev Tracker</title>
@@ -1243,7 +1273,7 @@
                    class="telegram-button"
                    title="Чат сообщества - Общайтесь с пользователями и разработчиком, делитесь идеями"
                    aria-label="Перейти в чат сообщества в Telegram"
-                   onclick="if (typeof gtag !== 'undefined') { gtag('event', 'telegram_click'); }">
+                   onclick="trackEvent('telegram_click')">
                     <svg class="telegram-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8L15.03 16.59C14.92 17.08 14.64 17.2 14.23 16.97L11.93 15.29L10.82 16.36C10.7 16.48 10.6 16.58 10.37 16.58L10.54 14.23L14.75 10.42C14.94 10.25 14.71 10.16 14.45 10.33L9.28 13.62L7.02 12.92C6.54 12.77 6.53 12.45 7.12 12.22L16.05 8.54C16.46 8.39 16.82 8.63 16.64 8.8Z" fill="currentColor"/>
                     </svg>
@@ -1610,9 +1640,7 @@
                 openProfileDropdown();
 
                 // Google Analytics event
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'profile_click');
-                }
+                trackEvent('profile_click');
             }
         }
 
@@ -1810,22 +1838,12 @@
                 completedSkills.add(skillId);
 
                 // Google Analytics event - skill completed
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'skill_complete', {
-                        'skill_id': skillId,
-                        'action': 'marked_complete'
-                    });
-                }
+                trackEvent('skill_complete', { skill_id: skillId, action: 'marked_complete' });
             } else {
                 completedSkills.delete(skillId);
 
                 // Google Analytics event - skill uncompleted
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'skill_complete', {
-                        'skill_id': skillId,
-                        'action': 'marked_incomplete'
-                    });
-                }
+                trackEvent('skill_complete', { skill_id: skillId, action: 'marked_incomplete' });
             }
 
             saveCompletedSkills(completedSkills);
@@ -1990,11 +2008,7 @@
             applyFilter();
 
             // Google Analytics event
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'filter_completed_toggle', {
-                    'filter_state': isFilterActive ? 'enabled' : 'disabled'
-                });
-            }
+            trackEvent('filter_completed_toggle', { filter_state: isFilterActive ? 'enabled' : 'disabled' });
         }
 
         function toggleAgeFilter() {
@@ -2006,11 +2020,7 @@
             applyFilter();
 
             // Google Analytics event
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'filter_age_toggle', {
-                    'filter_state': isAgeFilterActive ? 'enabled' : 'disabled'
-                });
-            }
+            trackEvent('filter_age_toggle', { filter_state: isAgeFilterActive ? 'enabled' : 'disabled' });
         }
 
         // Скрытие пустых категорий
@@ -2079,13 +2089,11 @@
             modal.style.display = 'block';
 
             // Google Analytics event
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'skill_view', {
-                    'skill_name': skill.name,
-                    'skill_category': skill.category,
-                    'skill_period': `${skill.age_start_months}-${skill.age_end_months}`
-                });
-            }
+            trackEvent('skill_view', {
+                skill_name: skill.name,
+                skill_category: skill.category,
+                skill_period: `${skill.age_start_months}-${skill.age_end_months}`
+            });
         }
 
         function closeSkillModal() {
@@ -2107,9 +2115,7 @@
         // Модальное окно развивающих активностей месяца
         function openActivitiesModal() {
             // Google Analytics event
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'activities_open');
-            }
+            trackEvent('activities_open');
 
             const modal = document.getElementById('activitiesModal');
             const grid = document.getElementById('activitiesGrid');
@@ -2260,11 +2266,7 @@
                     closeCreateProfileModal();
 
                     // Google Analytics event
-                    if (typeof gtag !== 'undefined') {
-                        gtag('event', 'profile_create', {
-                            'profile_name': name
-                        });
-                    }
+                    trackEvent('profile_create', { profile_name: name });
                 }
             });
 
@@ -2406,12 +2408,7 @@
                     saveCategoryStates();
 
                     // Google Analytics event
-                    if (typeof gtag !== 'undefined') {
-                        gtag('event', 'category_toggle', {
-                            'category_name': categoryName,
-                            'action': isCollapsed ? 'collapsed' : 'expanded'
-                        });
-                    }
+                    trackEvent('category_toggle', { category_name: categoryName, action: isCollapsed ? 'collapsed' : 'expanded' });
                 });
 
                 // Определить начальное состояние категории
