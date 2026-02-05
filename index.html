@@ -2339,6 +2339,15 @@
                 });
             }
 
+            // Сортируем навыки по разнице между максимальным нормативным возрастом и текущим месяцем жизни
+            // (от минимального N к максимальному, где N = age_end_months - currentLifeMonth)
+            // Это обеспечивает приоритет "просроченных" навыков
+            relevantSkills.sort((a, b) => {
+                const nA = a.age_end_months - currentLifeMonth;
+                const nB = b.age_end_months - currentLifeMonth;
+                return nA - nB;
+            });
+
             return relevantSkills;
         }
 
